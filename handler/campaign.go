@@ -42,13 +42,13 @@ func (h *campaignHandler) GetCampaign(c *gin.Context) {
 	err := c.ShouldBindUri(&input)
 	if err != nil {
 		response := helper.ApiResponse("Failed to get detail of campaign", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 	campaignDetail, err := h.service.GetCampaignByID(input)
 	if err != nil {
 		response := helper.ApiResponse("Failed to get detail of campaign", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 	response := helper.ApiResponse("Campaign detail", http.StatusOK, "success", campaign.FormatCampaignDetail(campaignDetail))
@@ -60,7 +60,7 @@ func (h *campaignHandler) CreateCampaign(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Failed to create campaign", http.StatusUnprocessableEntity, "error", errorMessage)
@@ -89,7 +89,7 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 	err := c.ShouldBindUri(&inputID)
 	if err != nil {
 		response := helper.ApiResponse("Failed to update campaign", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -97,7 +97,7 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 
 	err = c.ShouldBindJSON(&inputData)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorsMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Failed to update campaign", http.StatusUnprocessableEntity, "error", errorsMessage)
@@ -127,7 +127,7 @@ func (h *campaignHandler) UploadImage(c *gin.Context) {
 	err := c.ShouldBind(&input)
 
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Failed to upload campaign image", http.StatusUnprocessableEntity, "error", errorMessage)

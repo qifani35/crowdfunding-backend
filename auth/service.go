@@ -15,7 +15,14 @@ type Service interface {
 type jwtService struct {
 }
 
-var SECRET_KEY = []byte(os.Getenv("SECRET_KEY"))
+func getSecretKey() []byte {
+	key := os.Getenv("SECRET_KEY")
+	if key == "" {
+		// Fallback for development only — override in production via env
+		key = "CHANGE_ME_IN_PRODUCTION"
+	}
+	return []byte(key)
+}
 
 func NewService() Service {
 	return &jwtService{}
@@ -27,7 +34,7 @@ func (s *jwtService) GenerateToken(userID int) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	signedToken, err := token.SignedString(SECRET_KEY)
+	signedToken, err := token.SignedString(getSecretKey())
 
 	if err != nil {
 		return signedToken, err
@@ -42,7 +49,7 @@ func (s *jwtService) ValidateToken(encodedToken string) (*jwt.Token, error) {
 			return nil, errors.New("invalid token")
 		}
 
-		return []byte(SECRET_KEY), nil
+		return getSecretKey(), nil
 	})
 
 	if err != nil {

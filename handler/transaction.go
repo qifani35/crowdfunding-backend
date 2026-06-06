@@ -23,7 +23,7 @@ func (h *transactionHandler) GetCampaignTransactions(c *gin.Context) {
 	err := c.ShouldBindUri(&input)
 	if err != nil {
 		response := helper.ApiResponse("Failed to get campaign's transactions", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
@@ -34,7 +34,7 @@ func (h *transactionHandler) GetCampaignTransactions(c *gin.Context) {
 	transactions, err := h.service.GetTransactionsByCampaignID(input)
 	if err != nil {
 		response := helper.ApiResponse("Failed to get campaign's transactions", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 	response := helper.ApiResponse("Campaign's transactions", http.StatusOK, "success", transaction.FormatCampaignTransactions(transactions))
@@ -48,11 +48,11 @@ func (h *transactionHandler) GetUserTransactions(c *gin.Context) {
 	transactions, err := h.service.GetTransactionByUserID(userID)
 	if err != nil {
 		response := helper.ApiResponse("Failed to get user's transactions", http.StatusBadRequest, "error", nil)
-		c.JSON(http.StatusBadGateway, response)
+		c.JSON(http.StatusBadRequest, response)
 		return
 	}
 
-	response := helper.ApiResponse("Campaign's transactions", http.StatusOK, "success", transaction.FormatUserTransactions(transactions))
+	response := helper.ApiResponse("User's transactions", http.StatusOK, "success", transaction.FormatUserTransactions(transactions))
 	c.JSON(http.StatusOK, response)
 }
 
@@ -61,10 +61,10 @@ func (h *transactionHandler) CreateTransaction(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorsMessage := gin.H{"errors": errors}
 
-		response := helper.ApiResponse("Failed to create transacton", http.StatusUnprocessableEntity, "error", errorsMessage)
+		response := helper.ApiResponse("Failed to create transaction", http.StatusUnprocessableEntity, "error", errorsMessage)
 		c.JSON(http.StatusUnprocessableEntity, response)
 		return
 	}

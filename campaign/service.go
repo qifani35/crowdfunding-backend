@@ -82,7 +82,6 @@ func (s *service) UpdateCampaign(inputID GetCampaignDetailInput, inputData Creat
 	}
 
 	campaign.Name = inputData.Name
-	campaign.Description = inputData.Description
 	campaign.ShortDescription = inputData.ShortDescription
 	campaign.Description = inputData.Description
 	campaign.Perks = inputData.Perks

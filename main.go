@@ -5,14 +5,19 @@ import (
 	"backend/campaign"
 	"backend/handler"
 	"backend/helper"
+	"backend/logger"
+	"backend/middleware"
 	"backend/payment"
 	"backend/transaction"
 	"backend/user"
+	"context"
 	"fmt"
 	"net/http"
 	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	webHandler "backend/web/handler"
@@ -23,6 +28,7 @@ import (
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
+	"go.uber.org/zap"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -37,6 +43,8 @@ import (
 // }
 
 func main() {
+	logger.Init()
+	defer logger.Sync()
 
 	DB_USER := os.Getenv("DB_USER")
 	DB_PASSWORD := os.Getenv("DB_PASSWORD")
@@ -48,7 +56,7 @@ func main() {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
-		panic(err)
+		logger.Fatal("failed to connect to database", zap.Error(err))
 	}
 
 	userRepository := user.NewRepository(db)
@@ -72,17 +80,36 @@ func main() {
 	router := gin.Default()
 	// router.Use(cors.Default())
 
-	cookieStore := cookie.NewStore([]byte(auth.SECRET_KEY))
+	sessionSecret := os.Getenv("SESSION_SECRET_KEY")
+	if sessionSecret == "" {
+		sessionSecret = "CHANGE_ME_SESSION_KEY"
+	}
+	cookieStore := cookie.NewStore([]byte(sessionSecret))
 	router.Use(sessions.Sessions("mysession", cookieStore))
-	// disable cors
-	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"}, //for testing only ollow all access
+	// CORS configuration — configure ALLOWED_ORIGINS env var for production
+	allowedOrigins := os.Getenv("ALLOWED_ORIGINS")
+	corsOrigins := []string{"http://localhost:3000", "http://localhost:8080"}
+	if allowedOrigins != "" {
+		corsOrigins = strings.Split(allowedOrigins, ",")
+	}
+	corsConfig := cors.Config{
+		AllowOrigins:     corsOrigins,
 		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type", "Authorization", "Accept"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
-	}))
+	}
+	// Allow all origins only when no ALLOWED_ORIGINS is set and AllowCredentials is false
+	if os.Getenv("ALLOWED_ORIGINS") == "" && os.Getenv("ENV") == "development" {
+		corsConfig.AllowAllOrigins = true
+		corsConfig.AllowCredentials = false
+	}
+	router.Use(cors.New(corsConfig))
+
+	// Rate limiting: 10 requests per second, burst of 20
+	rateLimiter := middleware.NewIPRateLimiter(10, 20)
+	router.Use(middleware.RateLimitMiddleware(rateLimiter))
 
 	router.HTMLRender = loadTemplates("./web/templates")
 
@@ -94,7 +121,7 @@ func main() {
 
 	api.POST("/users", userHandler.RegisterUser)
 	api.POST("/sessions", userHandler.LoginUser)
-	api.POST("/email_checkers", userHandler.CheckEmailAvaibility)
+	api.POST("/email_checkers", userHandler.CheckEmailAvailability)
 	api.POST("/avatars", authMiddleware(authService, userService), userHandler.UploadAvatar)
 	api.GET("/users/fetch", authMiddleware(authService, userService), userHandler.FetchUser)
 
@@ -133,7 +160,39 @@ func main() {
 	router.POST("/session", sessionWebHandler.Create)
 	router.GET("/logout", sessionWebHandler.Destroy)
 
-	router.Run()
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
+	srv := &http.Server{
+		Addr:    ":" + port,
+		Handler: router,
+	}
+
+	// Start server in a goroutine
+	go func() {
+		logger.Info("server starting", zap.String("port", port))
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("server failed to start", zap.Error(err))
+		}
+	}()
+
+	// Wait for interrupt signal for graceful shutdown
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+	logger.Info("server shutting down...")
+
+	// Graceful shutdown with 30s timeout
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		logger.Fatal("server forced to shutdown", zap.Error(err))
+	}
+
+	logger.Info("server stopped gracefully")
 
 }
 
@@ -196,16 +255,16 @@ func authAdminMiddleware() gin.HandlerFunc {
 }
 
 func loadTemplates(templatesDir string) multitemplate.Renderer {
-	r := multitemplate.NewRenderer()
+	r := multitemplate.Renderer{}
 
 	layouts, err := filepath.Glob(templatesDir + "/layouts/*.html")
 	if err != nil {
-		panic(err.Error())
+		logger.Fatal("failed to load templates", zap.Error(err))
 	}
 
 	includes, err := filepath.Glob(templatesDir + "/**/*")
 	if err != nil {
-		panic(err.Error())
+		logger.Fatal("failed to load templates", zap.Error(err))
 	}
 
 	// Generate our templates map from our layouts/ and includes/ directories

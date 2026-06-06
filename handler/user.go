@@ -25,7 +25,7 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorsMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Register account failed", http.StatusUnprocessableEntity, "error", errorsMessage)
@@ -50,7 +50,7 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 
 	formatter := user.FormatUser(newUser, token)
 
-	response := helper.ApiResponse("Account has been registered", http.StatusOK, "sucess", formatter)
+	response := helper.ApiResponse("Account has been registered", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
 }
@@ -61,7 +61,7 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorsMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Login failed", http.StatusUnprocessableEntity, "error", errorsMessage)
@@ -88,17 +88,17 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 
 	formatter := user.FormatUser(loggedInUser, token)
 
-	response := helper.ApiResponse("Logged successfully", http.StatusOK, "sucess", formatter)
+	response := helper.ApiResponse("Logged successfully", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
 }
 
-func (h *userHandler) CheckEmailAvaibility(c *gin.Context) {
+func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 
 	var input user.CheckEmailInput
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
-		errors := helper.FormatValitationError(err)
+		errors := helper.FormatValidationError(err)
 		errorsMessage := gin.H{"errors": errors}
 
 		response := helper.ApiResponse("Email checking failed", http.StatusUnprocessableEntity, "error", errorsMessage)
@@ -122,7 +122,7 @@ func (h *userHandler) CheckEmailAvaibility(c *gin.Context) {
 		metaMessage = "Email is available"
 	}
 
-	response := helper.ApiResponse(metaMessage, http.StatusOK, "sucess", data)
+	response := helper.ApiResponse(metaMessage, http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
 
 }
