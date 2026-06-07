@@ -22,7 +22,7 @@ func GetDSN() string {
 	dbURL := os.Getenv("DB_URL")
 
 	return fmt.Sprintf(
-		"host=%s user=%s password=%s port=%s dbname=%s sslmode=require TimeZone=Asia/Shanghai",
+		"host=%s user=%s password=%s port=%s dbname=%s sslmode=require TimeZone=Asia/Jakarta",
 		dbURL, dbUser, dbPassword, dbPort, dbName,
 	)
 }
