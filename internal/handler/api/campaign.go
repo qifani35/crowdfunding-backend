@@ -1,4 +1,4 @@
-package handler
+package handlerapi
 
 import (
 	"backend/campaign"
@@ -32,11 +32,9 @@ func (h *campaignHandler) GetCampaigns(c *gin.Context) {
 	}
 	response := helper.ApiResponse("List of campaigns", http.StatusOK, "success", campaign.FormatCampaigns(campaigns))
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *campaignHandler) GetCampaign(c *gin.Context) {
-
 	var input campaign.GetCampaignDetailInput
 
 	err := c.ShouldBindUri(&input)
@@ -118,7 +116,6 @@ func (h *campaignHandler) UpdateCampaign(c *gin.Context) {
 
 	response := helper.ApiResponse("Success to update campaign", http.StatusOK, "success", campaign.FormatCampaign(updatedCampaign))
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *campaignHandler) UploadImage(c *gin.Context) {

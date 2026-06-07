@@ -1,4 +1,4 @@
-package handler
+package handlerapi
 
 import (
 	"backend/helper"
@@ -82,7 +82,6 @@ func (h *transactionHandler) CreateTransaction(c *gin.Context) {
 
 	response := helper.ApiResponse("Success to create transaction", http.StatusOK, "success", transaction.FormatTransaction(newTransaction))
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *transactionHandler) GetNotification(c *gin.Context) {

@@ -1,4 +1,4 @@
-package handler
+package handlerweb
 
 import (
 	"backend/user"
@@ -76,7 +76,6 @@ func (h *userHandler) Edit(c *gin.Context) {
 		Occupation: registerUser.Occupation,
 	}
 	c.HTML(http.StatusOK, "user_edit.html", input)
-
 }
 
 func (h *userHandler) Update(c *gin.Context) {
@@ -136,8 +135,6 @@ func (h *userHandler) CreateAvatar(c *gin.Context) {
 	userID := id
 
 	path := fmt.Sprintf("images/avatar/%d-%s", userID, file.Filename)
-
-	// static route
 
 	err = c.SaveUploadedFile(file, path)
 	log.Println("Lokasi di :", path)

@@ -1,4 +1,4 @@
-package handler
+package handlerweb
 
 import (
 	"backend/user"
@@ -27,7 +27,6 @@ func (h *sessionHandler) Create(c *gin.Context) {
 	if err != nil {
 		c.HTML(http.StatusInternalServerError, "error.html", nil)
 		return
-
 	}
 
 	user, err := h.userService.LoginUser(input)

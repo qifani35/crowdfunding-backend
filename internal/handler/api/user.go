@@ -1,4 +1,4 @@
-package handler
+package handlerapi
 
 import (
 	"backend/auth"
@@ -20,7 +20,6 @@ func NewUserHandler(userService user.Service, authService auth.Service) *userHan
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context) {
-
 	var input user.RegisterUserInput
 
 	err := c.ShouldBindJSON(&input)
@@ -56,7 +55,6 @@ func (h *userHandler) RegisterUser(c *gin.Context) {
 }
 
 func (h *userHandler) LoginUser(c *gin.Context) {
-
 	var input user.LoginUserInput
 
 	err := c.ShouldBindJSON(&input)
@@ -94,7 +92,6 @@ func (h *userHandler) LoginUser(c *gin.Context) {
 }
 
 func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
-
 	var input user.CheckEmailInput
 	err := c.ShouldBindJSON(&input)
 	if err != nil {
@@ -124,11 +121,9 @@ func (h *userHandler) CheckEmailAvailability(c *gin.Context) {
 
 	response := helper.ApiResponse(metaMessage, http.StatusOK, "success", data)
 	c.JSON(http.StatusOK, response)
-
 }
 
 func (h *userHandler) UploadAvatar(c *gin.Context) {
-
 	file, err := c.FormFile("avatar")
 	if err != nil {
 		data := gin.H{"is_uploaded": false}
@@ -136,7 +131,6 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 
 		c.JSON(http.StatusBadRequest, response)
 		return
-
 	}
 	currentUser := c.MustGet("currentUser").(user.User)
 	userID := currentUser.ID
@@ -159,7 +153,6 @@ func (h *userHandler) UploadAvatar(c *gin.Context) {
 
 		c.JSON(http.StatusBadRequest, response)
 		return
-
 	}
 
 	data := gin.H{"is_uploaded": true}
@@ -176,5 +169,4 @@ func (h *userHandler) FetchUser(c *gin.Context) {
 	response := helper.ApiResponse("Succesfuly fetch user data", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK, response)
-
 }

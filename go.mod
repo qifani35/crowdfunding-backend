@@ -1,7 +1,9 @@
 module backend
 
 // +heroku goVersion go1.17
-go 1.17
+go 1.22
+
+toolchain go1.22.2
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
@@ -11,10 +13,11 @@ require (
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-playground/validator/v10 v10.4.1
 	github.com/gosimple/slug v1.11.2
-	github.com/joho/godotenv v1.4.0
 	github.com/leekchan/accounting v1.0.0
 	github.com/veritrans/go-midtrans v0.0.0-20210616100512-16326c5eeb00
+	go.uber.org/zap v1.13.0
 	golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
+	golang.org/x/time v0.5.0
 	gorm.io/driver/postgres v1.2.3
 	gorm.io/gorm v1.22.4
 )
@@ -48,7 +51,11 @@ require (
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/shopspring/decimal v1.2.0 // indirect
 	github.com/ugorji/go/codec v1.1.7 // indirect
+	go.uber.org/atomic v1.6.0 // indirect
+	go.uber.org/multierr v1.5.0 // indirect
+	golang.org/x/lint v0.0.0-20190930215403-16217165b5de // indirect
 	golang.org/x/sys v0.0.0-20210615035016-665e8c7367d1 // indirect
 	golang.org/x/text v0.3.7 // indirect
+	golang.org/x/tools v0.0.0-20200103221440-774c71fcf114 // indirect
 	gopkg.in/yaml.v2 v2.2.8 // indirect
 )

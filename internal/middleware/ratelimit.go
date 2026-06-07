@@ -4,16 +4,16 @@ import (
 	"net/http"
 	"sync"
 
-	"golang.org/x/time/rate"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/time/rate"
 )
 
 // IPRateLimiter rate limiter per IP
 type IPRateLimiter struct {
-	ips     map[string]*rate.Limiter
-	mu      sync.RWMutex
-	rate    rate.Limit
-	burst   int
+	ips   map[string]*rate.Limiter
+	mu    sync.RWMutex
+	rate  rate.Limit
+	burst int
 }
 
 // NewIPRateLimiter creates a new rate limiter

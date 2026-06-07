@@ -1,4 +1,4 @@
-package handler
+package handlerweb
 
 import (
 	"backend/campaign"
@@ -158,7 +158,6 @@ func (h *campaignHandler) Edit(c *gin.Context) {
 	}
 
 	c.HTML(http.StatusOK, "campaign_edit.html", input)
-
 }
 
 func (h *campaignHandler) Update(c *gin.Context) {
@@ -179,7 +178,7 @@ func (h *campaignHandler) Update(c *gin.Context) {
 
 	existingCampaign, err := h.campaignService.GetCampaignByID(campaign.GetCampaignDetailInput{ID: id})
 	if err != nil {
-		log.Println("error di :", err) // debug
+		log.Println("error di :", err)
 		c.HTML(http.StatusInternalServerError, "error.html", nil)
 		return
 	}
